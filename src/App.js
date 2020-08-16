@@ -1,26 +1,45 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect, useRef } from 'react';
 
-function App() {
+// This is the custom hook!
+function useInterval(callback, delay) {
+  const savedCallback = useRef();
+
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+};
+
+export function App() {
+  const [count, setCount] = useState(0);
+  const [timer, setTimer] = useState(1000);
+
+  useInterval(() => {
+    setCount(count + 1);
+  }, timer);
+
+  const setTimerForm = (event) => {
+    setTimer(event.target.value);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <React.Fragment>
+      <h1>{count}</h1>
+      <input
+        type="text"
+        value={timer}
+        onChange={setTimerForm}
+      />
+    </React.Fragment>
   );
-}
-
-export default App;
+};
